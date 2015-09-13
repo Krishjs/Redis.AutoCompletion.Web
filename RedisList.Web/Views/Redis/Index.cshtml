@@ -1,0 +1,45 @@
+﻿<input id="orders" style="width: 100%" />
+<script>
+    $(document).ready(function () {
+        $("#orders").kendoComboBox({
+            template: '<span class="order-id">#= Id #</span> #= Code #, #= Name #',
+            dataTextField: "Name",
+            dataValueField: "Id",
+            virtual: {
+                itemHeight: 26,
+                valueMapper: function (options) {
+                    $.ajax({
+                        url: "ValueMapper",
+                        type: "GET",
+                        dataType: "jsonp",
+                        data: convertValues(options.value),
+                        success: function (data) {
+                            options.success(data);
+                        }
+                    })
+                }
+            },
+            height: 290,
+            dataSource: {                
+                transport: {
+                    read: "Redis/GetCity"
+                },
+                pageSize: 80,
+                serverPaging: true,
+                serverFiltering: true
+            }
+        });
+    });
+
+    function convertValues(value) {
+        var data = {};
+
+        value = $.isArray(value) ? value : [value];
+
+        for (var idx = 0; idx < value.length; idx++) {
+            data["values[" + idx + "]"] = value[idx];
+        }
+
+        return data;
+    }
+</script>
